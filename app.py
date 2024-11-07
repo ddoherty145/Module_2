@@ -17,21 +17,19 @@ def homepage():
 @app.route('/froyo')
 def choose_froyo():
     """Shows a form to collect the user's Fro-Yo order."""
-    return """
-    <form action="/froyo_results" method="GET">
-        What is your favorite Fro-Yo flavor? <br/>
-        <input type="text" name="flavor"><br/>
-        What are some Toppings you would Like?<br/>
-        <input type="text" name="toppings"><br/>
-        <input type="submit" value="Submit!">
-    </form>
-    """
+    return render_template('templates/froyo_form.html')
 
 @app.route('/froyo_results')
 def show_froyo_results():
     users_froyo_flavor = request.args.get('flavor')
     users_froyo_toppings = request.args.get('toppings')
-    return f'You ordered {users_froyo_flavor} with {users_froyo_toppings} on top!'
+    
+    context = {
+        'flavor': users_froyo_flavor,
+        'topping': users_froyo_toppings
+    }
+
+    return render_template('templates/froyo_form.html', **context)
 
 @app.route('/favorites')
 def favorites():
@@ -72,20 +70,7 @@ def message_results():
 @app.route('/calculator')
 def calculator():
     """Shows the user a form to enter 2 numbers and an operation."""
-    return """
-    <form action="/calculator_results" method="GET">
-        Please enter 2 numbers and select an operator.<br/><br/>
-        <input type="number" name="operand1">
-        <select name="operation">
-            <option value="add">+</option>
-            <option value="subtract">-</option>
-            <option value="multiply">*</option>
-            <option value="divide">/</option>
-        </select>
-        <input type="number" name="operand2">
-        <input type="submit" value="Submit!">
-    </form>
-    """
+    return render_template('templates/calculator_form.html')
 
 @app.route('/calculator_results')
 def calculator_results():
@@ -111,9 +96,16 @@ def calculator_results():
                 return "Error: Division by zero is not allowed."
         else:
          return "Invalid operation selected."
+        
+        context = {
+            'operand1': operand1,
+            'operand2': operand2,
+            'symbol': symbol,
+            'result': result
+        }
 
-    
-        return f"{operand1} {symbol} {operand2} = {result}"
+        return render_template('templates/calculator_results.html', **context)
+
 
 
 
@@ -139,19 +131,16 @@ def horoscope_form():
 
 @app.route('/horoscope_results')
 def horoscope_results():
-    """Shows the user the result for their chosen horoscope."""
+    users_name = request.args.get('users_name')
+    horoscope_sign = request.args.get('horoscope_sign')
 
-    # TODO: Get the sign the user entered in the form, based on their birthday
-    horoscope_sign = ''
+    users_personality = HOROSCOPE_PERSONALITIES.get(horoscope_sign, "an interesting and unique individual.")
 
-    # TODO: Look up the user's personality in the HOROSCOPE_PERSONALITIES
-    # dictionary based on what the user entered
-    users_personality = ''
+    lucky_number = random.randint(1, 99)
 
-    # TODO: Generate a random number from 1 to 99
-    lucky_number = 0
 
     context = {
+        'users_name': users_name,
         'horoscope_sign': horoscope_sign,
         'personality': users_personality, 
         'lucky_number': lucky_number
