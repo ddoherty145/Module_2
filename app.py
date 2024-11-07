@@ -17,7 +17,7 @@ def homepage():
 @app.route('/froyo')
 def choose_froyo():
     """Shows a form to collect the user's Fro-Yo order."""
-    return render_template('templates/froyo_form.html')
+    return render_template('froyo_form.html')
 
 @app.route('/froyo_results')
 def show_froyo_results():
@@ -29,7 +29,7 @@ def show_froyo_results():
         'topping': users_froyo_toppings
     }
 
-    return render_template('templates/froyo_form.html', **context)
+    return render_template('froyo_results.html', **context)
 
 @app.route('/favorites')
 def favorites():
@@ -70,7 +70,7 @@ def message_results():
 @app.route('/calculator')
 def calculator():
     """Shows the user a form to enter 2 numbers and an operation."""
-    return render_template('templates/calculator_form.html')
+    return render_template('calculator_form.html')
 
 @app.route('/calculator_results')
 def calculator_results():
@@ -104,8 +104,7 @@ def calculator_results():
             'result': result
         }
 
-        return render_template('templates/calculator_results.html', **context)
-
+        return render_template('calculator_results.html', **context)
 
 
 
