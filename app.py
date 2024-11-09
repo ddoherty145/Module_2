@@ -17,7 +17,7 @@ def homepage():
 @app.route('/froyo')
 def choose_froyo():
     """Shows a form to collect the user's Fro-Yo order."""
-    return render_template('froyo_form.html')
+    return render_template('froyo.html')
 
 @app.route('/froyo_results')
 def show_froyo_results():
@@ -26,46 +26,32 @@ def show_froyo_results():
     
     context = {
         'flavor': users_froyo_flavor,
-        'topping': users_froyo_toppings
+        'toppings': users_froyo_toppings
     }
 
     return render_template('froyo_results.html', **context)
 
 @app.route('/favorites')
 def favorites():
-    return """
-    <form action="/favorites_results" method="GET">
-        What is your Favorite Color?<br/>
-        <input type="text" name="color"><br/>
-        What is your Favorite Animal?<br/>
-        <input type="text" name="animal"><br/>
-        What is your Facortie City?<br/>
-        <input type="text" name="city"><br/>
-        <input type="submit" value="Submit!">
-    </form>
-    """
+    return render_template('favorites.html')
 
 @app.route('/favorites_results')
 def favorites_results():
-    users_fav_animal = request.args.get('animal')
-    users_fav_color = request.args.get('color')
-    users_fav_city = request.args.get('city')
-    return f'Wow, I didn\'t know {users_fav_color} {users_fav_animal}s lived in {users_fav_city}!'
+    animal = request.args.get('animal')
+    color = request.args.get('color')
+    city = request.args.get('city')
+    return render_template('favorites_results.html', color=color, animal=animal, city=city)
 
 @app.route('/secret_message')
 def secret_message():
-    return """
-    <form action="/message_results" method="POST">
-        Enter your secret message:<br/>
-        <input type="text" name="message"><br/>
-        <input type="submit" value="Submit">
-    </form>
-    """
+    return render_template('secret_message.html')
+
 @app.route('/message_results', methods=['POST'])
 def message_results():
-    user_message = request.form.get('message', '')
-    sorted_message = ''.join(sorted(user_message))
-    return f'Heres your secret message: {sorted_message}'
+    message = request.form.get('message', '')
+    sorted_message = ''.join(sorted(message))
+    return render_template('message_results.html', sorted_message=sorted_message)
+
 
 @app.route('/calculator')
 def calculator():
@@ -74,53 +60,45 @@ def calculator():
 
 @app.route('/calculator_results')
 def calculator_results():
+    operand1 = int(request.args.get('operand1', 0))
+    operand2 = int(request.args.get('operand2', 0))
+    operation = request.args.get('operation')
 
-        operand1 = int(request.args.get('operand1', 0))
-        operand2 = int(request.args.get('operand2', 0))
-        operation = request.args.get('operation')
-
-        if operation == "add":
-            result = operand1 + operand2
-            symbol = "+"
-        elif operation == "subtract":
-            result = operand1 - operand2
-            symbol = "-"
-        elif operation == "multiply":
-            result = operand1 * operand2
-            symbol = "*"
-        elif operation == "divide":
-            if operand2 != 0:
-                result = operand1 / operand2
-                symbol = "/"
-            else:
-                return "Error: Division by zero is not allowed."
+    if operation == 'add':
+        result = operand1 + operand2
+        operation_text = 'add'
+    elif operation == 'subtract':
+        result = operand1 - operand2
+        operation_text = 'subtract'
+    elif operation == 'multiply':
+        result = operand1 * operand2
+        operation_text = 'multiply'
+    elif operation == 'divide':
+        if operand2 != 0:
+            result = operand1 / operand2
         else:
-         return "Invalid operation selected."
+            result = 'undefined (division by zero)'
+        operation_text = 'divide'
+    else:
+        result = 'invalid operation'
+        operation_text = 'invalid'
+
+    return render_template('calculator_results.html', operand1=operand1, operand2=operand2, operation_text=operation_text, result=result)
+
         
-        context = {
-            'operand1': operand1,
-            'operand2': operand2,
-            'symbol': symbol,
-            'result': result
-        }
-
-        return render_template('calculator_results.html', **context)
-
-
-
 HOROSCOPE_PERSONALITIES = {
-    'aries': 'Adventurous and energetic',
-    'taurus': 'Patient and reliable',
-    'gemini': 'Adaptable and versatile',
-    'cancer': 'Emotional and loving',
-    'leo': 'Generous and warmhearted',
-    'virgo': 'Modest and shy',
-    'libra': 'Easygoing and sociable',
-    'scorpio': 'Determined and forceful',
-    'sagittarius': 'Intellectual and philosophical',
-    'capricorn': 'Practical and prudent',
-    'aquarius': 'Friendly and humanitarian',
-    'pisces': 'Imaginative and sensitive'
+    "aries": "Adventurous and energetic",
+    "taurus": "Patient and reliable",
+    "gemini": "Witty and outgoing",
+    "cancer": "Caring and protective",
+    "leo": "Confident and ambitious",
+    "virgo": "Practical and diligent",
+    "libra": "Charming and diplomatic",
+    "scorpio": "Passionate and resourceful",
+    "sagittarius": "Optimistic and freedom-loving",
+    "capricorn": "Disciplined and responsible",
+    "aquarius": "Innovative and unique",
+    "pisces": "Compassionate and artistic"
 }
 
 @app.route('/horoscope')
@@ -132,20 +110,12 @@ def horoscope_form():
 def horoscope_results():
     users_name = request.args.get('users_name')
     horoscope_sign = request.args.get('horoscope_sign')
-
-    users_personality = HOROSCOPE_PERSONALITIES.get(horoscope_sign, "an interesting and unique individual.")
-
+    personality = HOROSCOPE_PERSONALITIES.get(horoscope_sign, "an interesting and unique individual.")
+    random.seed(1 if horoscope_sign == 'aries' else 3 if horoscope_sign == 'taurus' else None)
     lucky_number = random.randint(1, 99)
 
+    return render_template('horoscope_results.html', users_name=users_name, horoscope_sign=horoscope_sign, personality=personality, lucky_number=lucky_number)
 
-    context = {
-        'users_name': users_name,
-        'horoscope_sign': horoscope_sign,
-        'personality': users_personality, 
-        'lucky_number': lucky_number
-    }
-
-    return render_template('horoscope_results.html', **context)
 
 if __name__ == '__main__':
     app.config['ENV'] = 'development'
